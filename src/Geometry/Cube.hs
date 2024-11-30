@@ -1,10 +1,12 @@
-module Geometry.Cube
-(
-    volume,
-    area
-) where
+{-# OPTIONS -Wall -Werror #-}
 
-import qualified Geometry.Cuboid as Cuboid
+module Geometry.Cube
+  ( volume,
+    area,
+  )
+where
+
+import Geometry.Cuboid qualified as Cuboid
 
 volume :: Float -> Float
 volume side = Cuboid.volume side side side
