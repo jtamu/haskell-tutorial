@@ -36,7 +36,7 @@ calcRoutes x = ptnA ++ ptnB
 defineOptimalRoute :: [([Route], SumRouteCost)] -> ([Route], SumRouteCost)
 defineOptimalRoute = foldl1 minRoute
   where
-    minRoute (r1, c1) (r2, c2) = if c1 < c2 then (r1, c1) else (r2, c2)
+    minRoute rc1@(_, c1) rc2@(_, c2) = if c1 < c2 then rc1 else rc2
 
 calcOptimalRoute :: [(RouteCostA, RouteCostB, OptionalRouteCost)] -> ([Route], SumRouteCost)
 calcOptimalRoute = defineOptimalRoute . calcRoutes
