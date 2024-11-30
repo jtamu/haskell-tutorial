@@ -1,7 +1,13 @@
 {-# OPTIONS -Wall -Werror #-}
 
-import Shape
-
 main :: IO ()
 main = do
-  print $ nudge (baseCircle 30) 10 20
+  line <- getLine
+  if null line
+    then return ()
+    else do
+      putStrLn $ reverseWords line
+      main
+
+reverseWords :: String -> String
+reverseWords = unwords . map reverse . words
