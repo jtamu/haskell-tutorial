@@ -9,8 +9,6 @@
 
 data Route = A | B deriving (Show)
 
-type PrevRouteCost = Int
-
 type RouteCostA = Int
 
 type RouteCostB = Int
@@ -19,27 +17,34 @@ type OptionalRouteCost = Int
 
 type SumRouteCost = Int
 
-calcRoute :: [([Route], PrevRouteCost)] -> (RouteCostA, RouteCostB, OptionalRouteCost) -> [([Route], SumRouteCost)]
+data RouteInfo = RouteInfo [Route] SumRouteCost deriving (Show)
+
+instance Eq RouteInfo where
+  (==) (RouteInfo _ s1) (RouteInfo _ s2) = s1 == s2
+
+instance Ord RouteInfo where
+  compare (RouteInfo _ s1) (RouteInfo _ s2) = compare s1 s2
+
+calcRoute :: [RouteInfo] -> (RouteCostA, RouteCostB, OptionalRouteCost) -> [RouteInfo]
 calcRoute [] _ = []
-calcRoute ((routes, prevCost) : xs) (costA, costB, optCost) = case route of
-  A -> [(reverse (A : reverse routes), prevCost + costA), (reverse (B : reverse routes), prevCost + costA + optCost)] ++ calcRoute xs (costA, costB, optCost)
-  B -> [(reverse (B : reverse routes), prevCost + costB), (reverse (A : reverse routes), prevCost + costB + optCost)] ++ calcRoute xs (costA, costB, optCost)
+calcRoute (RouteInfo routes prevCost : xs) (costA, costB, optCost) = case route of
+  A -> [aA, aB] ++ calcRoute xs (costA, costB, optCost)
+  B -> [bA, bB] ++ calcRoute xs (costA, costB, optCost)
   where
     route = last routes
+    aA = RouteInfo (reverse (A : reverse routes)) (prevCost + costA)
+    aB = RouteInfo (reverse (B : reverse routes)) (prevCost + costA + optCost)
+    bA = RouteInfo (reverse (B : reverse routes)) (prevCost + costB)
+    bB = RouteInfo (reverse (A : reverse routes)) (prevCost + costB + optCost)
 
-calcRoutes :: [(RouteCostA, RouteCostB, OptionalRouteCost)] -> [([Route], SumRouteCost)]
+calcRoutes :: [(RouteCostA, RouteCostB, OptionalRouteCost)] -> [RouteInfo]
 calcRoutes x = ptnA ++ ptnB
   where
-    ptnA = foldl calcRoute [([A], 0)] x
-    ptnB = foldl calcRoute [([B], 0)] x
+    ptnA = foldl calcRoute [RouteInfo [A] 0] x
+    ptnB = foldl calcRoute [RouteInfo [B] 0] x
 
-defineOptimalRoute :: [([Route], SumRouteCost)] -> ([Route], SumRouteCost)
-defineOptimalRoute = foldl1 minRoute
-  where
-    minRoute rc1@(_, c1) rc2@(_, c2) = if c1 < c2 then rc1 else rc2
-
-calcOptimalRoute :: [(RouteCostA, RouteCostB, OptionalRouteCost)] -> ([Route], SumRouteCost)
-calcOptimalRoute = defineOptimalRoute . calcRoutes
+calcOptimalRoute :: [(RouteCostA, RouteCostB, OptionalRouteCost)] -> RouteInfo
+calcOptimalRoute = minimum . calcRoutes
 
 groups :: [Int] -> [(Int, Int, Int)]
 groups [] = []
