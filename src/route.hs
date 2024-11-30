@@ -32,10 +32,10 @@ calcRoute (RouteInfo routes prevCost : xs) (costA, costB, optCost) = case route 
   B -> [bA, bB] ++ calcRoute xs (costA, costB, optCost)
   where
     route = last routes
-    aA = RouteInfo (reverse (A : reverse routes)) (prevCost + costA)
-    aB = RouteInfo (reverse (B : reverse routes)) (prevCost + costA + optCost)
-    bA = RouteInfo (reverse (B : reverse routes)) (prevCost + costB)
-    bB = RouteInfo (reverse (A : reverse routes)) (prevCost + costB + optCost)
+    aA = RouteInfo (routes ++ [A]) (prevCost + costA)
+    aB = RouteInfo (routes ++ [B]) (prevCost + costA + optCost)
+    bA = RouteInfo (routes ++ [B]) (prevCost + costB)
+    bB = RouteInfo (routes ++ [A]) (prevCost + costB + optCost)
 
 calcRoutes :: [(RouteCostA, RouteCostB, OptionalRouteCost)] -> [RouteInfo]
 calcRoutes x = ptnA ++ ptnB
