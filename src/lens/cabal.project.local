@@ -1,0 +1,6 @@
+ignore-project: False
+profiling: True
+documentation: True
+
+package *
+  documentation: True
